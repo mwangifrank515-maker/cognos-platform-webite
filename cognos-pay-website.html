@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognos Pay — Get paid, however your business works</title>
+<meta name="description" content="M-Pesa checkout, invoicing, storefronts, and dashboards for Kenyan shops, hospitals, landlords, and schools — all in one platform.">
+<meta property="og:title" content="Cognos Pay — Get paid, however your business works">
+<meta property="og:description" content="M-Pesa checkout, invoicing, storefronts, and dashboards for Kenyan shops, hospitals, landlords, and schools — all in one platform.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230B1829'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='600' fill='%23C9A84C' text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B1829;
+    --sidebar:#0D1E35;
+    --card:#112236;
+    --border:#1E3A58;
+    --gold:#C9A84C;
+    --gold-light:#E2C97E;
+    --text:#EAF0F8;
+    --muted:#6B88A8;
+    --danger:#D9534F;
+    --radius:12px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      radial-gradient(1100px 600px at 85% -10%, rgba(201,168,76,0.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(201,168,76,0.06), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .display{font-family:'Fraunces', serif;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  a{color:inherit; text-decoration:none;}
+  .wrap{max-width:1180px; margin:0 auto; padding:0 32px;}
+  ::selection{background:var(--gold); color:#0D1205;}
+
+  /* focus visibility */
+  a:focus-visible, button:focus-visible{outline:2px solid var(--gold-light); outline-offset:3px; border-radius:4px;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(11,24,41,0.82);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 32px; max-width:1180px; margin:0 auto;
+  }
+  .logo{display:flex; align-items:baseline; gap:2px; letter-spacing:0.02em;}
+  .logo .word{font-family:'Fraunces', serif; font-weight:600; font-size:22px; color:var(--gold-light);}
+  .logo .sub{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); letter-spacing:0.22em; margin-left:8px; text-transform:uppercase;}
+  .nav-links{display:flex; gap:22px; font-size:14.5px; color:var(--muted);}
+  .nav-links a{transition:color .2s;}
+  .nav-links a:hover{color:var(--gold-light);}
+  .nav-cta{
+    display:inline-block; padding:10px 20px; border-radius:999px;
+    background:linear-gradient(135deg, var(--gold-light), var(--gold));
+    color:#0D1205; font-weight:600; font-size:14px; letter-spacing:0.01em;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .nav-cta:hover{transform:translateY(-1px); box-shadow:0 8px 24px rgba(201,168,76,0.28);}
+  .burger{
+    display:none; flex-direction:column; justify-content:center; gap:5px;
+    width:36px; height:36px; background:none; border:none; cursor:pointer; padding:0;
+  }
+  .burger span{width:22px; height:2px; background:var(--text); border-radius:2px; transition:transform .25s, opacity .25s;}
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0;}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+  .mobile-menu{
+    display:none; flex-direction:column; gap:2px;
+    background:var(--card); border-bottom:1px solid var(--border);
+    padding:10px 32px 18px;
+  }
+  .mobile-menu a{
+    padding:12px 4px; font-size:15px; color:var(--muted);
+    border-bottom:1px solid var(--border);
+  }
+  .mobile-menu a:last-child{border-bottom:none;}
+  .mobile-menu a:hover{color:var(--gold-light);}
+  .mobile-menu.open{display:flex;}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:96px 0 60px;}
+  .hero-grid{display:grid; grid-template-columns:1.05fr 0.95fr; gap:56px; align-items:center;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.18em; text-transform:uppercase;
+    color:var(--gold-light); border:1px solid var(--border); background:var(--card);
+    padding:7px 14px; border-radius:999px; margin-bottom:26px;
+  }
+  .eyebrow .dot{width:6px; height:6px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 3px rgba(201,168,76,0.18);}
+  h1{
+    font-size:clamp(38px, 4.6vw, 60px);
+    font-weight:600; line-height:1.08; letter-spacing:-0.01em;
+    margin-bottom:22px;
+  }
+  h1 em{font-style:normal; color:var(--gold-light);}
+  .lede{font-size:18px; color:var(--muted); max-width:480px; margin-bottom:34px;}
+  .hero-actions{display:flex; align-items:center; gap:22px; margin-bottom:40px;}
+  .btn-primary{
+    padding:14px 26px; border-radius:10px;
+    background:linear-gradient(135deg, var(--gold-light), var(--gold));
+    color:#0D1205; font-weight:600; font-size:15px;
+    transition:transform .2s, box-shadow .2s; display:inline-block;
+  }
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 10px 28px rgba(201,168,76,0.3);}
+  .btn-ghost{font-size:15px; color:var(--text); display:inline-flex; align-items:center; gap:8px; border-bottom:1px solid var(--border); padding-bottom:2px; transition:border-color .2s, color .2s;}
+  .btn-ghost:hover{color:var(--gold-light); border-color:var(--gold-light);}
+  .fee-line{font-size:13.5px; color:var(--muted); display:flex; align-items:center; gap:10px;}
+  .fee-line .mono{color:var(--gold-light);}
+
+  /* phone mockup — signature element */
+  .phone-stage{display:flex; justify-content:center; position:relative;}
+  .phone{
+    width:290px; height:588px; border-radius:38px; padding:14px;
+    background:linear-gradient(160deg, #142A44, #0D1E35 70%);
+    border:1px solid var(--border);
+    box-shadow:0 40px 90px -30px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.02);
+    position:relative;
+  }
+  .phone::before{
+    content:''; position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:90px; height:22px; background:#081422; border-radius:0 0 16px 16px;
+  }
+  .phone-screen{
+    height:100%; border-radius:26px; background:var(--sidebar);
+    padding:44px 18px 18px; display:flex; flex-direction:column; gap:12px;
+    overflow:hidden; position:relative;
+  }
+  .ph-row{display:flex; justify-content:space-between; font-family:'JetBrains Mono', monospace; font-size:10px; color:var(--muted); padding:0 2px 6px;}
+  .ph-card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px; text-align:center;}
+  .ph-brand{font-family:'Fraunces', serif; color:var(--gold-light); font-size:14px; margin-bottom:6px; font-weight:600;}
+  .ph-amount{font-family:'JetBrains Mono', monospace; font-size:26px; color:var(--text); font-weight:500; margin-bottom:4px;}
+  .ph-merchant{font-size:11.5px; color:var(--muted);}
+  .ph-step{
+    flex:1; border-radius:16px; border:1px dashed var(--border);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    padding:18px; text-align:center;
+  }
+  .ph-step .icon{
+    width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(201,168,76,0.12); border:1px solid rgba(201,168,76,0.35); color:var(--gold-light); font-size:18px;
+  }
+  .ph-step .label{font-size:13px; font-weight:600;}
+  .ph-step .sub{font-size:11.5px; color:var(--muted); max-width:190px;}
+  .ph-pin{display:flex; gap:6px;}
+  .ph-pin span{width:9px; height:9px; border-radius:50%; background:var(--border);}
+  .ph-pin span.filled{background:var(--gold);}
+  .ph-check{
+    width:44px; height:44px; border-radius:50%; background:var(--gold); color:#0D1205;
+    display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700;
+  }
+  .phone-tag{
+    position:absolute; bottom:-18px; left:50%; transform:translateX(-50%);
+    background:var(--card); border:1px solid var(--border); border-radius:999px;
+    padding:8px 16px; font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted);
+    white-space:nowrap;
+  }
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{padding:104px 0;}
+  .section-head{max-width:620px; margin-bottom:56px;}
+  .section-eyebrow{font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-light); margin-bottom:14px;}
+  .section-title{font-family:'Fraunces', serif; font-size:clamp(28px,3.2vw,38px); font-weight:600; margin-bottom:14px; letter-spacing:-0.01em;}
+  .section-sub{color:var(--muted); font-size:16px;}
+
+  .reveal{opacity:0; transform:translateY(22px); transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* services grid */
+  .services{display:grid; grid-template-columns:repeat(3,1fr); gap:22px;}
+  .s-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:28px; transition:border-color .25s, transform .25s;
+  }
+  .s-card:hover{border-color:rgba(201,168,76,0.45); transform:translateY(-4px);}
+  .s-icon{
+    width:42px; height:42px; border-radius:10px; background:rgba(201,168,76,0.10);
+    border:1px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center;
+    font-size:18px; color:var(--gold-light); margin-bottom:18px;
+  }
+  .s-card h3{font-size:17px; font-weight:600; margin-bottom:10px;}
+  .s-card p{color:var(--muted); font-size:14.5px;}
+
+  /* marketplace */
+  .verticals{display:grid; grid-template-columns:repeat(2,1fr); gap:22px;}
+  .v-card{
+    border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;
+    background:var(--card); cursor:pointer; text-align:left; width:100%;
+    font-family:'Inter', sans-serif; color:var(--text);
+    transition:border-color .25s, transform .25s;
+  }
+  .v-card:hover, .v-card:focus-visible{border-color:rgba(201,168,76,0.45); transform:translateY(-4px);}
+  .v-top{padding:26px 26px 22px;}
+  .v-tag{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold-light); margin-bottom:10px; display:block;}
+  .v-card h3{font-family:'Fraunces', serif; font-size:20px; font-weight:600; margin-bottom:10px;}
+  .v-card p{color:var(--muted); font-size:14.5px; margin-bottom:18px;}
+  .v-open{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 26px; border-top:1px solid var(--border);
+    font-size:13px; color:var(--gold-light); font-weight:600;
+  }
+  .v-open .arrow{transition:transform .25s;}
+  .v-card:hover .v-open .arrow{transform:translateX(4px);}
+
+  /* marketplace modal */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(6,13,22,0.72); backdrop-filter:blur(6px);
+    display:flex; align-items:flex-end; justify-content:center; z-index:200;
+    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  }
+  .modal-backdrop.open{opacity:1; pointer-events:auto;}
+  @media (min-width:720px){ .modal-backdrop{align-items:center;} }
+  .modal-panel{
+    width:min(640px, 100%); max-height:88vh; overflow-y:auto;
+    background:linear-gradient(180deg, var(--card), var(--sidebar));
+    border:1px solid var(--border); border-radius:22px 22px 0 0;
+    padding:40px 40px 36px; position:relative;
+    transform:translateY(28px); transition:transform .3s ease;
+  }
+  @media (min-width:720px){ .modal-panel{border-radius:22px; transform:translateY(14px);} }
+  .modal-backdrop.open .modal-panel{transform:translateY(0);}
+  .modal-close{
+    position:absolute; top:20px; right:20px; width:36px; height:36px; border-radius:50%;
+    border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--muted);
+    display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer;
+    transition:color .2s, border-color .2s;
+  }
+  .modal-close:hover{color:var(--gold-light); border-color:rgba(201,168,76,0.4);}
+  .modal-icon{
+    width:48px; height:48px; border-radius:12px; background:rgba(201,168,76,0.10);
+    border:1px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center;
+    font-size:20px; color:var(--gold-light); margin-bottom:20px;
+  }
+  .modal-panel h3{font-family:'Fraunces', serif; font-size:26px; font-weight:600; margin-bottom:10px;}
+  .modal-panel .modal-desc{color:var(--muted); font-size:15px; margin-bottom:30px; max-width:480px;}
+  .modal-steps-title{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold-light); margin-bottom:16px;}
+  .modal-steps{list-style:none; margin-bottom:34px;}
+  .modal-steps li{
+    display:flex; gap:16px; padding:14px 0; border-top:1px solid var(--border);
+  }
+  .modal-steps li:last-child{border-bottom:1px solid var(--border);}
+  .modal-steps .num{
+    font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--gold-light);
+    width:26px; height:26px; border-radius:50%; border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;
+  }
+  .modal-steps .txt strong{display:block; font-size:14.5px; font-weight:600; margin-bottom:3px;}
+  .modal-steps .txt span{font-size:13.5px; color:var(--muted);}
+  .modal-actions{display:flex; flex-wrap:wrap; gap:14px;}
+  .modal-actions .dl-btn{cursor:not-allowed;}
+
+  /* live backend data */
+  .live-box{
+    border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,0.02);
+    padding:6px; margin-bottom:8px; min-height:64px;
+  }
+  .live-state{padding:20px; text-align:center; font-size:13.5px; color:var(--muted); font-family:'JetBrains Mono', monospace;}
+  .live-state.error{color:var(--danger);}
+  .live-state.hidden{display:none;}
+  .live-list{list-style:none;}
+  .live-list li{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    padding:13px 14px; border-bottom:1px solid var(--border);
+  }
+  .live-list li:last-child{border-bottom:none;}
+  .live-name{font-size:14px; font-weight:600;}
+  .live-sub{font-size:12.5px; color:var(--muted); margin-top:2px;}
+  .live-meta{font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--gold-light); white-space:nowrap;}
+  .live-dot{
+    display:inline-block; width:6px; height:6px; border-radius:50%; background:#4CAF7D;
+    margin-right:7px; box-shadow:0 0 0 3px rgba(76,175,125,0.18);
+  }
+
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px;}
+  .chips span{font-size:12.5px; color:var(--gold-light); border:1px solid var(--border); background:rgba(201,168,76,0.07); padding:5px 12px; border-radius:999px;}
+  .feat{list-style:none; margin-bottom:26px; display:grid; gap:9px;}
+  .feat li{font-size:13.5px; color:var(--muted); padding-left:18px; position:relative;}
+  .feat li::before{content:''; position:absolute; left:2px; top:9px; width:6px; height:6px; border-radius:50%; background:var(--gold);}
+  .feat li b{color:var(--text); font-weight:600;}
+  .also{margin-top:26px; display:flex; flex-wrap:wrap; align-items:center; gap:10px; color:var(--muted); font-size:14px;}
+  .also .chips{margin:0;}
+  .flow{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:56px;}
+  .flow div{border:1px solid var(--border); background:var(--card); border-radius:var(--radius); padding:18px; font-size:13.5px; color:var(--muted);}
+  .flow b{display:block; color:var(--text); font-size:14.5px; margin-bottom:4px;}
+  .note{color:var(--muted); font-size:13.5px; margin-top:20px; max-width:640px;}
+  .faq{max-width:760px;}
+  .faq details{border-top:1px solid var(--border); padding:18px 0;}
+  .faq details:last-child{border-bottom:1px solid var(--border);}
+  .faq summary{cursor:pointer; font-weight:600; font-size:15.5px; list-style:none; display:flex; justify-content:space-between; gap:16px;}
+  .faq summary::after{content:'+'; color:var(--gold-light); font-size:20px; line-height:1;}
+  .faq details[open] summary::after{content:'–';}
+  .faq p{color:var(--muted); font-size:14.5px; margin-top:10px;}
+  .foot-links{display:flex; flex-wrap:wrap; gap:18px; font-size:13px; color:var(--muted); margin-top:16px;}
+  .foot-links a:hover{color:var(--gold-light);}
+  .modal-panel{width:min(760px,100%);}
+  /* how it works */
+  .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; counter-reset:step;}
+  .step{position:relative; padding:0 24px 0 0;}
+  .step:not(:last-child)::after{
+    content:''; position:absolute; top:26px; right:-2px; width:calc(100% - 60px); height:1px;
+    background:linear-gradient(90deg, var(--border), transparent);
+  }
+  .step-num{
+    font-family:'Fraunces', serif; font-size:15px; color:var(--gold-light);
+    width:52px; height:52px; border:1px solid var(--border); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; margin-bottom:22px; background:var(--card);
+  }
+  .step h4{font-size:16px; font-weight:600; margin-bottom:10px;}
+  .step p{font-size:14px; color:var(--muted);}
+
+  /* download */
+  .download-panel{
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:0;
+    border:1px solid var(--border); border-radius:20px; overflow:hidden;
+    background:linear-gradient(135deg, var(--card), var(--sidebar));
+  }
+  .dl-left{padding:52px;}
+  .dl-left .section-eyebrow{margin-bottom:16px;}
+  .dl-left h3{font-family:'Fraunces', serif; font-size:28px; font-weight:600; margin-bottom:16px;}
+  .dl-left p{color:var(--muted); margin-bottom:28px; max-width:420px;}
+  .dl-btn{
+    display:inline-flex; align-items:center; gap:12px; padding:14px 24px;
+    border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,0.02);
+    color:var(--muted); font-weight:600; font-size:15px; cursor:not-allowed;
+  }
+  .dl-btn .badge{
+    font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase;
+    background:rgba(201,168,76,0.14); color:var(--gold-light); padding:4px 8px; border-radius:6px;
+  }
+  .dl-note{font-size:12.5px; color:var(--muted); margin-top:16px;}
+  .dl-right{
+    background:var(--bg); border-left:1px solid var(--border);
+    display:flex; flex-direction:column; justify-content:center; padding:52px; gap:18px;
+  }
+  .platform-row{display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--border); font-size:14px;}
+  .platform-row:last-child{border-bottom:none;}
+  .platform-row .status{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em;}
+
+  /* contact */
+  .contact-panel{
+    text-align:center; border:1px solid var(--border); border-radius:20px; padding:70px 40px;
+    background:var(--card);
+  }
+  .contact-panel h3{font-family:'Fraunces', serif; font-size:30px; margin-bottom:16px;}
+  .contact-panel p{color:var(--muted); max-width:480px; margin:0 auto 26px;}
+  .chip{
+    display:inline-flex; align-items:center; gap:8px; font-family:'JetBrains Mono', monospace; font-size:12px;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--gold-light);
+    border:1px solid rgba(201,168,76,0.35); background:rgba(201,168,76,0.08);
+    padding:8px 16px; border-radius:999px;
+  }
+
+  /* footer */
+  footer{border-top:1px solid var(--border); padding:48px 0 36px;}
+  .foot-grid{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px;}
+  .foot-tag{color:var(--muted); font-size:13.5px; max-width:340px; margin-top:10px;}
+  .foot-meta{color:var(--muted); font-size:12.5px; font-family:'JetBrains Mono', monospace;}
+
+  @media (max-width:920px){
+    .hero-grid{grid-template-columns:1fr;}
+    .phone-stage{order:-1; margin-bottom:20px;}
+    .phone{width:230px; height:470px;}
+    .nav-links{display:none;}
+    .burger{display:flex;}
+    .services, .verticals{grid-template-columns:1fr;}
+    .steps{grid-template-columns:1fr 1fr; row-gap:40px;}
+    .flow{grid-template-columns:1fr 1fr;}
+    .step:nth-child(2)::after{display:none;}
+    .download-panel{grid-template-columns:1fr;}
+    .dl-right{border-left:none; border-top:1px solid var(--border);}
+  }
+  @media (min-width:921px){
+    .mobile-menu{display:none !important;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav>
+    <div class="logo"><span class="word">Cognos</span><span class="sub">Pay</span></div>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#verticals">Verticals</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#security">Security</a>
+      <a href="#faq">FAQ</a>
+      <a href="#download">Apps</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a class="nav-cta" href="#contact">Get started</a>
+    <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services">Services</a>
+    <a href="#verticals">Verticals</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#security">Security</a>
+    <a href="#faq">FAQ</a>
+    <a href="#download">Apps</a>
+    <a href="#contact">Contact</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Built for M-Pesa, made for Kenyan business</div>
+        <h1>Get paid instantly,<br>however your business <em>works</em>.</h1>
+        <p class="lede">Cognos Pay is a payments platform for shops, hospitals, landlords, and schools. Send an M-Pesa STK push, share a payment link, or open a storefront, then run your fees, bookings, or rent from one dashboard.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#contact">Get started</a>
+          <a class="btn-ghost" href="#verticals">See how it works for your business →</a>
+        </div>
+        <p class="fee-line"><span class="mono">Till or Paybill</span> payouts · no card machine · customers need no app</p>
+      </div>
+
+      <div class="phone-stage">
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="ph-row"><span id="clock">09:41</span><span>M-PESA</span></div>
+            <div class="ph-card">
+              <div class="ph-brand">Cognos Pay</div>
+              <div class="ph-amount">KES 2,450</div>
+              <div class="ph-merchant">Pay to Two Rivers Boutique</div>
+            </div>
+            <div class="ph-step" id="phStep">
+              <!-- filled by JS animation -->
+            </div>
+          </div>
+        </div>
+        <div class="phone-tag">stk push · live in ~2 seconds</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Services</div>
+        <h2 class="section-title">Everything to take and manage a payment</h2>
+        <p class="section-sub">One platform, built around how money actually moves through a Kenyan business.</p>
+      </div>
+      <div class="services">
+        <div class="s-card reveal">
+          <div class="s-icon">↗</div>
+          <h3>M-Pesa STK push</h3>
+          <p>Trigger a payment prompt straight to a customer's phone and get confirmation the moment they enter their PIN.</p>
+        </div>
+        <div class="s-card reveal">
+          <div class="s-icon">▦</div>
+          <h3>Payment links &amp; QR codes</h3>
+          <p>Generate a shareable link or scannable code for any amount — no storefront required, paid in seconds.</p>
+        </div>
+        <div class="s-card reveal">
+          <div class="s-icon">▤</div>
+          <h3>Invoicing</h3>
+          <p>Raise invoices, track their status from sent to paid, and export a clean PDF receipt for every transaction.</p>
+        </div>
+        <div class="s-card reveal">
+          <div class="s-icon">⌂</div>
+          <h3>Online storefront</h3>
+          <p>Every merchant gets a public storefront page to list products and take payment directly, no separate site needed.</p>
+        </div>
+        <div class="s-card reveal">
+          <div class="s-icon">☰</div>
+          <h3>Team &amp; roles</h3>
+          <p>Add staff with scoped permissions — owners, managers, and front-desk roles each see only what they need.</p>
+        </div>
+        <div class="s-card reveal">
+          <div class="s-icon">◔</div>
+          <h3>Live dashboard &amp; reports</h3>
+          <p>Watch transactions land in real time and reconcile disbursements without waiting on a monthly statement.</p>
+        </div>
+        <div class="s-card reveal"><div class="s-icon">⇄</div><h3>Payouts to your Till or Paybill</h3><p>Each payment is collected, your fee is taken, and the rest goes to the Till or Paybill you registered. Every payout is tracked.</p></div>
+        <div class="s-card reveal"><div class="s-icon">✦</div><h3>AI dashboard builder</h3><p>Describe your business at sign-up and the dashboard is set up for it. Ask the AI manager later to rename modules or add fields.</p></div>
+        <div class="s-card reveal"><div class="s-icon">⌁</div><h3>Reminders &amp; recurring billing</h3><p>Recurring rent and fee invoices, late fees, and SMS or email reminders for overdue balances.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARKETPLACE -->
+  <section id="verticals">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">The Cognos Marketplace</div>
+        <h2 class="section-title">Pick your system, see exactly how it runs</h2>
+        <p class="section-sub">Four full systems, each with its own logins and portals. Open one for the step-by-step walkthrough.</p>
+      </div>
+      <div class="verticals">
+        <button class="v-card reveal" data-system="retail">
+          <div class="v-top">
+            <span class="v-tag">Retail &amp; merchants</span>
+            <h3>Shop &amp; Storefront System</h3>
+            <p>Sell products online or in person and get paid without a card machine.</p>
+          </div>
+          <div class="v-open">View full outline <span class="arrow">→</span></div>
+        </button>
+        <button class="v-card reveal" data-system="hospital">
+          <div class="v-top">
+            <span class="v-tag">Healthcare</span>
+            <h3>Hospital &amp; Clinic System</h3>
+            <p>Run patient bookings, department staff, and consultation payments in one place.</p>
+          </div>
+          <div class="v-open">View full outline <span class="arrow">→</span></div>
+        </button>
+        <button class="v-card reveal" data-system="rental">
+          <div class="v-top">
+            <span class="v-tag">Property</span>
+            <h3>Rental &amp; Landlord System</h3>
+            <p>Manage tenants, plots, and rent collection with a portal tenants can log into.</p>
+          </div>
+          <div class="v-open">View full outline <span class="arrow">→</span></div>
+        </button>
+        <button class="v-card reveal" data-system="school">
+          <div class="v-top">
+            <span class="v-tag">Education</span>
+            <h3>School &amp; College System</h3>
+            <p>Fees, exams, parent portals, and department offices for primary, secondary, and college.</p>
+          </div>
+          <div class="v-open">View full outline <span class="arrow">→</span></div>
+        </button>
+      </div>
+      <div class="also reveal"><span>Also set up for:</span><div class="chips"><span>Hotels</span><span>Restaurants</span><span>Salons</span><span>Gyms</span><span>Pharmacies</span><span>Hardware</span><span>Logistics</span></div></div>
+      <p class="note">These trades get the full payments toolkit, storefront wording (“Book now”, “Order now”, “Join”), and ready-made staff roles. Dedicated modules like the four above are added per trade over time.</p>
+    </div>
+  </section>
+
+  <!-- MARKETPLACE MODAL -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+      <div class="modal-icon" id="modalIcon">◔</div>
+      <span class="v-tag" id="modalTag">Retail &amp; merchants</span>
+      <h3 id="modalTitle">Shop &amp; Storefront System</h3>
+      <p class="modal-desc" id="modalDesc"></p>
+
+      <div class="modal-steps-title">How it works</div>
+      <ul class="modal-steps" id="modalSteps"></ul>
+
+      <div class="modal-steps-title">What you get</div>
+      <ul class="feat" id="modalFeats"></ul>
+      <div class="modal-steps-title">Who signs in</div>
+      <div class="chips" id="modalRoles"></div>
+      <div class="modal-steps-title" style="margin-bottom:14px;">Live on Cognos Pay right now</div>
+      <div id="modalLive" class="live-box">
+        <div class="live-state" id="liveState">Loading live listings…</div>
+        <ul class="live-list" id="liveList"></ul>
+      </div>
+
+      <div class="modal-actions" style="margin-top:30px;">
+        <span class="dl-btn" id="modalWebsite">⌂ Open web portal <span class="badge">Coming soon</span></span>
+        <span class="dl-btn" id="modalApp">⬇ Download app <span class="badge">Coming soon</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Instructions</div>
+        <h2 class="section-title">From sign-up to settled, in four steps</h2>
+        <p class="section-sub">The same flow whether you're taking one payment or running a full storefront.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">01</div>
+          <h4>Create your merchant account</h4>
+          <p>Register your business and get a merchant profile with its own dashboard.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">02</div>
+          <h4>Set up how you'll get paid</h4>
+          <p>Turn on a payment link, QR code, invoice template, or full storefront — use any or all of them.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">03</div>
+          <h4>Customer pays via M-Pesa</h4>
+          <p>They confirm on their phone through an STK push, a scanned code, or a shared link.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">04</div>
+          <h4>Track &amp; reconcile</h4>
+          <p>Watch the transaction land, generate a receipt, and see it reflected in your live dashboard.</p>
+        </div>
+      </div>
+      <div class="flow reveal">
+        <div><b>Customer pays</b>STK push, link, or QR code. Confirmed with their M-Pesa PIN.</div>
+        <div><b>Cognos Pay collects</b>The payment is matched to the invoice, order, or fee it belongs to.</div>
+        <div><b>Your fee is taken</b>A percentage, or nothing if you are on a flat monthly plan.</div>
+        <div><b>Net paid to you</b>Sent to your registered Till or Paybill. Changing it needs the owner’s password.</div>
+      </div>
+      <p class="note">New accounts are reviewed and activated by the Cognos Pay team before they go live.</p>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Pricing</div>
+        <h2 class="section-title">Pay per sale, or pay a flat monthly fee</h2>
+        <p class="section-sub">Your plan is agreed when your account is activated.</p>
+      </div>
+      <div class="services">
+        <div class="s-card reveal"><h3>Per transaction</h3><p>A small percentage of each payment is deducted before your payout. No monthly bill, so you pay only when you earn.</p></div>
+        <div class="s-card reveal"><h3>Flat monthly</h3><p>One fixed fee each month, billed to you as a platform invoice. Payments are paid out in full. Suits high-volume schools and hospitals.</p></div>
+        <div class="s-card reveal"><h3>Safaricom charges</h3><p>M-Pesa’s own transaction charges are separate from the Cognos Pay fee and set by Safaricom.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECURITY -->
+  <section id="security">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Security &amp; compliance</div>
+        <h2 class="section-title">Built for money and for personal data</h2>
+        <p class="section-sub">Patient, tenant, and student records need more care than a till roll. Here is what protects them.</p>
+      </div>
+      <div class="services">
+        <div class="s-card reveal"><h3>Role-based access</h3><p>Every staff account gets only the permissions its role needs. A cashier sees their own sales; a teacher sees only their classes.</p></div>
+        <div class="s-card reveal"><h3>Guarded payouts</h3><p>Only the owner can change the payout Till or Paybill, and only after re-entering their password. Payouts are recorded once and never repeated.</p></div>
+        <div class="s-card reveal"><h3>Verified sign-ins</h3><p>Phone codes verify staff, students, and parents. Repeated wrong codes lock the attempt. “Log out everywhere” ends all sessions.</p></div>
+        <div class="s-card reveal"><h3>Safe key handling</h3><p>Passwords and API keys are stored hashed, never in plain text. Sensitive values are redacted from logs.</p></div>
+        <div class="s-card reveal"><h3>Audit trail</h3><p>Schools get an audit log of fee adjustments, approvals, and record changes. Big changes need a second person to approve.</p></div>
+        <div class="s-card reveal"><h3>Data Protection Act, 2019</h3><p>Cognos Pay acts as data processor for your records. Hospitals can record their KMPDC data handler certificate in the dashboard.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Questions</div>
+        <h2 class="section-title">Before you sign up</h2>
+      </div>
+      <div class="faq reveal">
+        <details><summary>Do my customers need an app?</summary><p>No. They get an M-Pesa prompt on their phone, or open a link or QR code. Patients, tenants, students, and parents use a web portal in their browser.</p></details>
+        <details><summary>Where does the money go?</summary><p>To the Till or Paybill you register, after your fee. You can follow every payout from the dashboard.</p></details>
+        <details><summary>Which businesses can use it?</summary><p>Shops and storefronts, hospitals and clinics, landlords and property managers, and schools from primary to college. Hotels, restaurants, salons, gyms, pharmacies, and hardware stores use the same payments toolkit.</p></details>
+        <details><summary>Can staff work without internet?</summary><p>In school Registry apps, quick admissions and department messages are saved on the computer and sync when the connection returns. Fees and payments always need a connection.</p></details>
+        <details><summary>Can parents and students see results?</summary><p>Yes, through the school portal. Parents see only their own children, and marks appear only after they are verified and locked by the exams office.</p></details>
+        <details><summary>How do I get started?</summary><p>Register your business, choose its type, and the dashboard is set up for you. The team then activates your account.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section id="download">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Desktop app</div>
+        <h2 class="section-title">Apps and portals for every role</h2>
+        <p class="section-sub">Staff use desktop apps. Customers use the web. The desktop apps are in final testing.</p>
+      </div>
+      <div class="download-panel reveal">
+        <div class="dl-left">
+          <div class="section-eyebrow">Desktop apps</div>
+          <h3>Coming soon</h3>
+          <p>A merchant app, plus six small department apps for schools (Registry, Finance, Exams, Library, Store, HR). Each office installs only its own. Downloads appear here when they are ready.</p>
+          <span class="dl-btn" aria-disabled="true">⬇ Download for Windows <span class="badge">Coming soon</span></span>
+          <p class="dl-note">Until then, the full dashboard is available in-browser after you sign in.</p>
+        </div>
+        <div class="dl-right">
+          <div class="platform-row"><span>Windows</span><span class="status">Coming soon</span></div>
+          <div class="platform-row"><span>macOS</span><span class="status">Coming soon</span></div>
+          <div class="platform-row"><span>School office apps (Windows)</span><span class="status">Coming soon</span></div>
+          <div class="platform-row"><span>Web dashboard</span><span class="status">Available</span></div>
+          <div class="platform-row"><span>Patient, tenant, student &amp; parent portals</span><span class="status">Available</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-panel reveal">
+        <div class="chip">Contact · coming soon</div>
+        <h3 style="margin-top:22px;">We're setting up our support channels</h3>
+        <p>Direct contact details, live chat, and a help center are on the way. In the meantime, check back here for how to reach the Cognos Pay team.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <div class="logo"><span class="word">Cognos</span><span class="sub">Pay</span></div>
+      <p class="foot-tag">Payments for Kenyan shops, hospitals, landlords, and schools: M-Pesa checkout, invoicing, storefronts, and dashboards in one platform.</p>
+    <nav class="foot-links" aria-label="Footer"><a href="#verticals">Systems</a><a href="#pricing">Pricing</a><a href="#security">Security</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
+    </div>
+    <div class="foot-meta">© 2026 Cognos Pay · All rights reserved</div>
+  </div>
+</footer>
+
+<script>
+  // marketplace modal
+  // ── Backend connection ──────────────────────────────────────────────
+  // Auto-detects local dev vs. production so you don't have to remember to
+  // flip this by hand: when the site itself is loaded from localhost, it
+  // talks to your local FastAPI server; anywhere else, it talks to your
+  // real deployed API domain.
+  //
+  // UPDATE THE LINE BELOW once your backend has a real domain (see the
+  // deployment roadmap — this is the same domain M-Pesa callbacks point
+  // to). Until then this falls back to the placeholder, which will
+  // correctly fail with the "can't reach your backend" message below
+  // rather than silently pointing at nothing.
+  const PRODUCTION_API_BASE = 'http://127.0.0.1:8000/'; // ← change this
+
+  const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const API_BASE = (isLocal ? 'http://127.0.0.1:8000/' : PRODUCTION_API_BASE).replace(/\/+$/, '');
+
+  const SYSTEMS = {
+    retail: {
+      tag: 'Retail & merchants', title: 'Shop & Storefront System', icon: '⌂',
+      desc: 'For shops, supermarkets, boutiques, hardware and pharmacy counters that want to sell online or in person and get paid without a card machine.',
+      steps: [
+        ['Register and get activated', 'Sign up, describe your business, and the dashboard is set up for it. Your public storefront exists from day one.'],
+        ['Add your products', 'List items with price, photo, category, and stock. They show on your storefront and in the public marketplace, searchable by city.'],
+        ['Choose how customers pay', 'Share the storefront, a reusable payment link, or a QR code at the till. Or send an STK push from the dashboard.'],
+        ['Customer pays by M-Pesa', 'They confirm with their PIN. No app, no card.'],
+        ['Invoice and track', 'Create PDF invoices, send them by email or WhatsApp, and watch each payment land in real time.'],
+        ['Get paid out and reconcile', 'Net amounts go to your Till or Paybill. Export transactions and reports whenever you need them.']
+      ],
+      feats: ['<b>STK push, links, QR codes</b> for any amount', '<b>Invoices</b> with PDF, email, and WhatsApp sharing', '<b>Public storefront</b> and marketplace listing', '<b>Reports and CSV export</b> of every transaction', '<b>API key</b> to connect your own systems', '<b>AI manager</b> to reshape your dashboard in plain language'],
+      roles: ['Owner', 'Manager', 'Cashier', 'Accountant', 'Viewer'],
+      website: 'Storefront (yourstore.cognospay.com)', app: 'Cognos Pay for Desktop',
+      endpoint: () => `${API_BASE}/public/marketplace/products`,
+      format: (item) => ({ name: item.merchant?.business_name || item.name, sub: [item.name, item.merchant?.city].filter(Boolean).join(' · '), meta: item.unit_price != null ? `KES ${Number(item.unit_price).toLocaleString()}` : '' }),
+    },
+    hospital: {
+      tag: 'Healthcare', title: 'Hospital & Clinic System', icon: '✚',
+      desc: 'For clinics and hospitals that want patients to book, pay, and consult online, and every department to work from one shared patient record.',
+      steps: [
+        ['Switch on your departments', 'Enable Doctor, Nurse, Lab, Pharmacy, and Radiology or Scans. Create staff accounts, each with its own login code.'],
+        ['List your doctors', 'Each doctor gets a profile with specialty, bio, photo, and consultation fee, searchable by city and specialty.'],
+        ['Patients sign up and book', 'A patient registers with their phone and books a doctor. Reception can also book walk-ins and phone bookings.'],
+        ['Pay by M-Pesa', 'Each booking creates its own invoice and payment link. Chat is always free; voice and video calls unlock once the invoice is paid.'],
+        ['Doctor runs the visit', 'Doctors see their queue, chat with patients, and keep private clinical notes the patient never sees.'],
+        ['Departments share one record', 'Prescriptions go to Pharmacy, lab and scan orders go to Lab and Radiology, and results and nurse vitals come back to the same patient file.'],
+        ['Owner oversees and pays staff', 'See all activity in one feed. Per-staff activity reports can become invoices to pay staff for their work.']
+      ],
+      feats: ['<b>Booking, chat, and paid voice or video calls</b>', '<b>Shared patient record</b> across five departments', '<b>Branded login page</b> per department at your own hospital address', '<b>Walk-in booking</b> by doctors and nurses', '<b>Auto invoices</b> and PDF receipts for patients', '<b>KMPDC attestation</b> tracking for your data handler certificate'],
+      roles: ['Patient', 'Doctor', 'Nurse', 'Lab technician', 'Pharmacist', 'Radiology', 'Receptionist', 'Billing cashier', 'Finance officer', 'Hospital manager'],
+      website: 'Hospital care portal (per-hospital login page)', app: 'Cognos Care for Desktop',
+      endpoint: () => `${API_BASE}/hospital/doctors`,
+      format: (item) => ({ name: `Dr. ${item.name}`, sub: [item.specialty, item.hospital?.business_name, item.hospital?.city].filter(Boolean).join(' · '), meta: item.fee != null ? `KES ${Number(item.fee).toLocaleString()}` : '' }),
+    },
+    rental: {
+      tag: 'Property', title: 'Rental & Landlord System', icon: '⌂',
+      desc: 'For landlords and property managers who want listings, applications, leases, and rent collection in one place, with a portal for every tenant.',
+      steps: [
+        ['List your units', 'Add property type, bedrooms, bathrooms, rent, deposit, photos, amenities, and map location. Vacant units appear in the public rental directory and map.'],
+        ['Prospects apply', 'Visitors search by city, price, and amenities, save a search, and apply from the listing with a supporting document.'],
+        ['Approve and create the tenant', 'Review applications, then approve one to create the tenant account and assign the unit.'],
+        ['Set up the lease', 'Record lease terms and upload the lease document. Renew or end leases, and get expiry reminders sent automatically.'],
+        ['Rent bills itself', 'Monthly rent invoices are generated ahead of the due date, late fees apply by your rule, and arrears reminders go out by SMS or email.'],
+        ['Tenants use their portal', 'Tenants pay rent by M-Pesa, see invoices and their lease, and request maintenance, movers, or internet. They can also review their unit.']
+      ],
+      feats: ['<b>Public directory</b> with map, filters, and saved searches', '<b>Applications</b> from listing to tenant account', '<b>Recurring rent invoices</b> and configurable late fees', '<b>Arrears and lease-expiry reminders</b>', '<b>Maintenance, movers, and internet</b> requests from tenants', '<b>Tenant reviews</b> that help future tenants choose'],
+      roles: ['Tenant', 'Landlord', 'Property manager', 'Caretaker', 'Accountant'],
+      website: 'Tenant portal (rental.cognospay.com)', app: 'Cognos Rentals for Desktop',
+      endpoint: () => `${API_BASE}/rental/listings`,
+      format: (item) => ({ name: item.merchant?.business_name || item.name, sub: [item.name, item.merchant?.city].filter(Boolean).join(' · '), meta: item.unit_price != null ? `KES ${Number(item.unit_price).toLocaleString()}/mo` : '' }),
+    },
+    school: {
+      tag: 'Education', title: 'School & College System', icon: '✎',
+      desc: 'For primary schools, secondary schools, and colleges. Fees are collected by M-Pesa, every office has its own app, and parents and students get a portal.',
+      steps: [
+        ['Choose your school level', 'Primary, secondary, or college and university. The dashboard uses your words: pupils or students, term or semester, classes or programmes.'],
+        ['Set up departments and staff', 'Registry, Finance, Exams, Library, Store, and HR. Staff sign in with a login code, verify their phone, then choose their own password.'],
+        ['Build the year', 'Create academic years and terms, set up classes, and admit students. Quick admission works offline in the Registry app.'],
+        ['Bill fees', 'Define fee structures, generate invoices for a whole class in one go, and send arrears reminders. Guardians pay by M-Pesa.'],
+        ['Control adjustments', 'Waivers and corrections are requested by one person and approved by another. Each is logged.'],
+        ['Run exams', 'Teachers enter marks, heads of department verify them, and the exams officer locks results. Locked results can be corrected only by request.'],
+        ['Open the portal', 'Parents see their children’s fees and results. Students see their own record and notices. Both sign in with a phone code.'],
+        ['Run the offices', 'Library loans and fines, store requests and stock movements, staff contracts and leave. Staff accounts lock after closing time.']
+      ],
+      feats: ['<b>Level-aware dashboards</b> for primary, secondary, and college', '<b>Fee billing</b> by class with arrears tracking', '<b>Maker-checker approvals</b> for adjustments and promotions', '<b>Exam workflow</b> with grading bands and locked results', '<b>Parent and student portal</b> with notices and requests', '<b>Opening hours</b> that lock staff accounts after closing', '<b>Six office apps</b>, with offline admissions and messages'],
+      roles: ['Owner / admin', 'Bursar', 'Fee collector', 'Accounts clerk', 'Teacher', 'Head of department', 'Exams officer', 'HR officer', 'Store keeper', 'Librarian', 'Portal manager', 'Parent', 'Student'],
+      website: 'School portal (students, parents, teachers)', app: 'School office apps for Windows',
+      endpoint: null,
+    },
+  };
+
+  const backdrop = document.getElementById('modalBackdrop');
+  const modalTag = document.getElementById('modalTag');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const modalSteps = document.getElementById('modalSteps');
+  const modalIcon = document.getElementById('modalIcon');
+  const modalWebsite = document.getElementById('modalWebsite');
+  const modalApp = document.getElementById('modalApp');
+
+  const liveState = document.getElementById('liveState');
+  const liveList = document.getElementById('liveList');
+
+  const modalFeats = document.getElementById('modalFeats');
+  const modalRoles = document.getElementById('modalRoles');
+  function openSystem(key){
+    const s = SYSTEMS[key];
+    if(!s) return;
+    modalTag.textContent = s.tag;
+    modalTitle.textContent = s.title;
+    modalDesc.textContent = s.desc;
+    modalIcon.textContent = s.icon;
+    modalSteps.innerHTML = s.steps.map((step, i) => `
+      <li>
+        <span class="num">${i+1}</span>
+        <span class="txt"><strong>${step[0]}</strong><span>${step[1]}</span></span>
+      </li>
+    `).join('');
+    modalFeats.innerHTML = s.feats.map(f => `<li>${f}</li>`).join('');
+    modalRoles.innerHTML = s.roles.map(r => `<span>${r}</span>`).join('');
+    modalWebsite.innerHTML = `⌂ Open ${s.website} <span class="badge">Coming soon</span>`;
+    modalApp.innerHTML = `⬇ Download ${s.app} <span class="badge">Coming soon</span>`;
+    backdrop.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    fetchLive(s);
+  }
+
+  async function fetchLive(system){
+    liveList.innerHTML = '';
+    if(!system.endpoint){ liveState.className = 'live-state'; liveState.textContent = 'Each school has its own private portal address. Ask your school for yours.'; return; }
+    liveState.textContent = 'Loading live listings…';
+    liveState.className = 'live-state';
+    try{
+      const res = await fetch(system.endpoint(), { headers: { 'Accept': 'application/json' } });
+      if(!res.ok) throw new Error('bad status');
+      const data = await res.json();
+      const results = (data.results || []).slice(0, 6);
+      if(!results.length){
+        liveState.textContent = 'No businesses are listed on this system yet. New listings appear here as soon as they go live.';
+        return;
+      }
+      liveState.className = 'live-state hidden';
+      liveList.innerHTML = results.map(item => {
+        const f = system.format(item);
+        return `
+          <li>
+            <div>
+              <div class="live-name"><span class="live-dot"></span>${escapeHtml(f.name || 'Unnamed')}</div>
+              <div class="live-sub">${escapeHtml(f.sub || '')}</div>
+            </div>
+            <div class="live-meta">${escapeHtml(f.meta || '')}</div>
+          </li>
+        `;
+      }).join('');
+    }catch(err){
+      liveState.className = 'live-state error';
+      liveState.textContent = 'Live listings are unavailable right now. Please check back soon.';
+    }
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function closeModal(){
+    backdrop.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('.v-card').forEach(card=>{
+    card.addEventListener('click', ()=> openSystem(card.dataset.system));
+  });
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) closeModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeModal(); });
+
+  // mobile nav
+  const burgerBtn = document.getElementById('burgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  function setMenu(open){
+    burgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    mobileMenu.classList.toggle('open', open);
+  }
+  burgerBtn.addEventListener('click', ()=> setMenu(!mobileMenu.classList.contains('open')));
+  mobileMenu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> setMenu(false)));
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') setMenu(false); });
+
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.15});
+  revealEls.forEach(el=>io.observe(el));
+
+  // live clock in phone status bar
+  function tick(){
+    const d = new Date();
+    const h = d.getHours()%12 || 12;
+    const m = d.getMinutes().toString().padStart(2,'0');
+    const el = document.getElementById('clock');
+    if(el) el.textContent = `${h}:${m}`;
+  }
+  tick(); setInterval(tick, 30000);
+
+  // phone STK-push flow animation (signature element)
+  const states = [
+    () => `
+      <div class="icon">→</div>
+      <div class="label">Sending request…</div>
+      <div class="sub">Prompting customer's phone</div>
+    `,
+    () => `
+      <div class="icon">🔒</div>
+      <div class="label">Enter M-Pesa PIN</div>
+      <div class="ph-pin">
+        <span class="filled"></span><span class="filled"></span><span class="filled"></span><span></span>
+      </div>
+    `,
+    () => `
+      <div class="ph-check">✓</div>
+      <div class="label">Payment confirmed</div>
+      <div class="sub">KES 2,450 received</div>
+    `,
+  ];
+  let idx = 0;
+  const stepEl = document.getElementById('phStep');
+  function renderStep(){
+    if(!stepEl) return;
+    stepEl.style.opacity = 0;
+    setTimeout(()=>{
+      stepEl.innerHTML = states[idx]();
+      stepEl.style.opacity = 1;
+      idx = (idx + 1) % states.length;
+    }, 260);
+  }
+  stepEl.style.transition = 'opacity .26s ease';
+  renderStep();
+  setInterval(renderStep, 2400);
+</script>
+
+</body>
+</html>
