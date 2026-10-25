@@ -308,6 +308,9 @@
   .foot-links{display:flex; flex-wrap:wrap; gap:18px; font-size:13px; color:var(--muted); margin-top:16px;}
   .foot-links a:hover{color:var(--gold-light);}
   .modal-panel{width:min(760px,100%);}
+  .s-card .btn-ghost{margin-top:16px;}
+  .off{opacity:.5; pointer-events:none;}
+  .cred{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12.5px; color:var(--gold-light); margin-top:10px; display:block;}
   /* how it works */
   .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; counter-reset:step;}
   .step{position:relative; padding:0 24px 0 0;}
@@ -401,6 +404,7 @@
       <a href="#services">Services</a>
       <a href="#verticals">Verticals</a>
       <a href="#how">How it works</a>
+      <a href="#demo">Live demo</a>
       <a href="#pricing">Pricing</a>
       <a href="#security">Security</a>
       <a href="#faq">FAQ</a>
@@ -416,6 +420,7 @@
     <a href="#services">Services</a>
     <a href="#verticals">Verticals</a>
     <a href="#how">How it works</a>
+    <a href="#demo">Live demo</a>
     <a href="#pricing">Pricing</a>
     <a href="#security">Security</a>
     <a href="#faq">FAQ</a>
@@ -620,6 +625,24 @@
     </div>
   </section>
 
+  <!-- DEMO -->
+  <section id="demo">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Live demo</div>
+        <h2 class="section-title">Try the real product</h2>
+        <p class="section-sub">Demo data and Safaricom sandbox payments, so no real money moves. Please don’t enter real personal details.</p>
+      </div>
+      <div class="services">
+        <div class="s-card reveal"><h3>Dashboard &amp; school offices</h3><p>The Cognos Pay app, running in your browser. Sign in as the demo school owner.</p><span class="cred">demo.owner@example.com<br>DemoOwner#2026</span><a class="btn-ghost" data-demo="app">Open the app →</a></div>
+        <div class="s-card reveal"><h3>School portal</h3><p>See fees and results as a parent or student. The phone code is always 123456 in the demo.</p><span class="cred">Parent: 0711300001<br>Student: D-001</span><a class="btn-ghost" data-demo="school">Open the portal →</a></div>
+        <div class="s-card reveal"><h3>Patient portal</h3><p>Browse doctors and see how booking and payment work for a hospital.</p><a class="btn-ghost" data-demo="hospital">Open the portal →</a></div>
+        <div class="s-card reveal"><h3>Rental directory</h3><p>Search listings on the map, the way a prospective tenant would.</p><a class="btn-ghost" data-demo="rental">Open the directory →</a></div>
+      </div>
+      <p class="note">The demo resets from time to time, so anything you add may disappear.</p>
+    </div>
+  </section>
+
   <!-- PRICING -->
   <section id="pricing">
     <div class="wrap">
@@ -717,7 +740,7 @@
     <div>
       <div class="logo"><span class="word">Cognos</span><span class="sub">Pay</span></div>
       <p class="foot-tag">Payments for Kenyan shops, hospitals, landlords, and schools: M-Pesa checkout, invoicing, storefronts, and dashboards in one platform.</p>
-    <nav class="foot-links" aria-label="Footer"><a href="#verticals">Systems</a><a href="#pricing">Pricing</a><a href="#security">Security</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
+    <nav class="foot-links" aria-label="Footer"><a href="#verticals">Systems</a><a href="#pricing">Pricing</a><a href="#security">Security</a><a href="#faq">FAQ</a><a href="#contact">Contact</a><a href="https://cognos-demo.onrender.com/legal/terms" target="_blank" rel="noopener">Terms</a><a href="https://cognos-demo.onrender.com/legal/privacy" target="_blank" rel="noopener">Privacy</a></nav>
     </div>
     <div class="foot-meta">© 2026 Cognos Pay · All rights reserved</div>
   </div>
@@ -736,7 +759,17 @@
   // to). Until then this falls back to the placeholder, which will
   // correctly fail with the "can't reach your backend" message below
   // rather than silently pointing at nothing.
-  const PRODUCTION_API_BASE = 'http://127.0.0.1:8000/'; // ← change this
+  const PRODUCTION_API_BASE = 'https://cognos-demo.onrender.com';
+
+  // Live demo addresses.
+  const DEMO_APP = 'https://cognos-demo-1.onrender.com';
+  const DEMO_API = 'https://cognos-demo.onrender.com';
+  const DEMO_PATHS = { app: '', school: '/school-portal/1', hospital: '/hospital', rental: '/rental' };
+  document.querySelectorAll('[data-demo]').forEach(a => {
+    const k = a.dataset.demo, base = (k === 'app' ? DEMO_APP : DEMO_API).replace(/\/+$/, '');
+    if (base) { a.href = base + DEMO_PATHS[k]; a.target = '_blank'; a.rel = 'noopener'; }
+    else { a.textContent = 'Demo launching soon'; a.classList.add('off'); }
+  });
 
   const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
   const API_BASE = (isLocal ? 'http://127.0.0.1:8000/' : PRODUCTION_API_BASE).replace(/\/+$/, '');
