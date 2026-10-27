@@ -311,6 +311,18 @@
   .s-card .btn-ghost{margin-top:16px;}
   .off{opacity:.5; pointer-events:none;}
   .cred{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12.5px; color:var(--gold-light); margin-top:10px; display:block;}
+  .pform{display:grid; gap:14px; max-width:560px;}
+  .pform input,.pform select{background:var(--card); border:1px solid var(--border); color:var(--text); padding:13px 14px; border-radius:10px; font:inherit; width:100%;}
+  .pform input:focus,.pform select:focus{outline:2px solid var(--gold); outline-offset:1px;}
+  .pform label{font-size:13px; color:var(--muted); display:grid; gap:6px;}
+  .pform button{border:0; cursor:pointer; justify-self:start;}
+  .pform button:disabled{opacity:.6; cursor:wait;}
+  .pout{margin-top:22px; max-width:560px;}
+  .pout .ok{border:1px solid var(--border); background:var(--card); border-radius:var(--radius); padding:20px;}
+  .pout .ok h3{margin-bottom:8px;}
+  .pout .ok p{color:var(--muted); font-size:14px; margin-bottom:10px;}
+  .pout .ok a{margin-right:16px; color:var(--gold-light);}
+  .pout .err{color:#ff9b9b; font-size:14px;}
   /* how it works */
   .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:0; counter-reset:step;}
   .step{position:relative; padding:0 24px 0 0;}
@@ -639,7 +651,35 @@
         <div class="s-card reveal"><h3>Patient portal</h3><p>Browse doctors and see how booking and payment work for a hospital.</p><a class="btn-ghost" data-demo="hospital">Open the portal →</a></div>
         <div class="s-card reveal"><h3>Rental directory</h3><p>Search listings on the map, the way a prospective tenant would.</p><a class="btn-ghost" data-demo="rental">Open the directory →</a></div>
       </div>
+      <p class="note"><a class="btn-ghost" href="#portal">Or create a demo portal of your own →</a></p>
       <p class="note">The demo resets from time to time, so anything you add may disappear.</p>
+    </div>
+  </section>
+
+  <!-- OWN DEMO PORTAL -->
+  <section id="portal">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div class="section-eyebrow">Your own demo</div>
+        <h2 class="section-title">Get a demo portal of your own</h2>
+        <p class="section-sub">Pick your type of business and we set up a working portal with sample data in seconds. It uses sandbox payments, so nothing real is charged.</p>
+      </div>
+      <form class="pform reveal" id="portalForm" autocomplete="off">
+        <label>Business name<input name="biz" required minlength="2" maxlength="80" placeholder="e.g. Mwangaza Supplies"></label>
+        <label>Type of business<select name="vertical">
+          <option value="shop">Shop or storefront</option>
+          <option value="hospital">Hospital or clinic</option>
+          <option value="rental">Rental properties</option>
+          <option value="school:primary">School: primary</option>
+          <option value="school:secondary">School: secondary</option>
+          <option value="school:college">School: college or university</option>
+        </select></label>
+        <label>Email (your demo login)<input name="email" type="email" required maxlength="120" autocomplete="off"></label>
+        <label>Password (8 or more characters; don’t reuse a real one)<input name="pw" type="password" required minlength="8" maxlength="100" autocomplete="new-password"></label>
+        <button class="btn-primary" type="submit">Create my demo portal</button>
+      </form>
+      <div class="pout" id="portalOut" aria-live="polite"></div>
+      <p class="note">Demo accounts are cleared from time to time. Please don’t enter real customer or patient details.</p>
     </div>
   </section>
 
@@ -769,6 +809,31 @@
     const k = a.dataset.demo, base = (k === 'app' ? DEMO_APP : DEMO_API).replace(/\/+$/, '');
     if (base) { a.href = base + DEMO_PATHS[k]; a.target = '_blank'; a.rel = 'noopener'; }
     else { a.textContent = 'Demo launching soon'; a.classList.add('off'); }
+  });
+
+  const pf = document.getElementById('portalForm');
+  if (pf && DEMO_API) pf.addEventListener('submit', async e => {
+    e.preventDefault();
+    const out = document.getElementById('portalOut'), btn = pf.querySelector('button');
+    const [vertical, level] = pf.vertical.value.split(':');
+    btn.disabled = true; out.className = 'pout'; out.textContent = 'Building your demo portal. This can take up to a minute…';
+    try {
+      const r = await fetch(DEMO_API.replace(/\/+$/, '') + '/demo/portal', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business_name: pf.biz.value.trim(), email: pf.email.value.trim(), password: pf.pw.value,
+                               vertical, school_level: level || null })
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(typeof d.detail === 'string' ? d.detail : 'Please check your details and try again.');
+      out.innerHTML = '<div class="ok"><h3>Your demo portal is ready</h3><p>Sign in with <b id="pEmail"></b> and the password you chose.</p><a id="pApp" target="_blank" rel="noopener">Open my dashboard →</a><a id="pPub" target="_blank" rel="noopener">See my public page →</a></div>';
+      document.getElementById('pEmail').textContent = d.email;
+      document.getElementById('pApp').href = DEMO_APP;
+      document.getElementById('pPub').href = DEMO_API.replace(/\/+$/, '') + d.public_path;
+      pf.reset();
+    } catch (err) {
+      out.innerHTML = '<p class="err"></p>';
+      out.firstChild.textContent = err instanceof TypeError ? 'Could not reach the demo. It may be waking up, so please try again in a minute.' : err.message;
+    } finally { btn.disabled = false; }
   });
 
   const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
